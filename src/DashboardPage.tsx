@@ -39,9 +39,9 @@ export function DashboardPage() {
             bg="linear-gradient(135deg, #102a43 0%, #1f4f63 52%, #e6fffb 160%)"
             color="white"
           >
-            <Flex justify="space-between" align={{ base: "start", lg: "end" }} gap={5} wrap="wrap">
+            <Flex justify="space-between" align={{ base: "start", lg: "end" }} gap={5} flexWrap="wrap">
               <Box maxW="820px">
-                <HStack spacing={3} mb={4} wrap="wrap">
+                <HStack spacing={3} mb={4} flexWrap="wrap">
                   <Badge colorScheme="green" px={3} py={1} borderRadius="full">Mock environment</Badge>
                   <Badge colorScheme="cyan" px={3} py={1} borderRadius="full">SaMD / AST / LMIC</Badge>
                   <Badge colorScheme="orange" px={3} py={1} borderRadius="full">Product + QA/RA + Ops</Badge>

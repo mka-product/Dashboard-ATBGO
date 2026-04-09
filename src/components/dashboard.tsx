@@ -82,7 +82,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 import { exportRowsToCsv } from "../utils/csv";
 import { antibioticOptions, bacteriaOptions } from "../data/mockData";
 import {
@@ -107,7 +107,7 @@ export function InfoPopover({
   children,
 }: {
   title: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <Popover placement="bottom-end">
@@ -277,7 +277,7 @@ export function GlobalFilters({
 }: {
   data: DashboardData;
   filters: GlobalFiltersState;
-  setFilters: React.Dispatch<React.SetStateAction<GlobalFiltersState>>;
+  setFilters: Dispatch<SetStateAction<GlobalFiltersState>>;
 }) {
   const meta = useMemo(() => getFilterMeta(data), [data]);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -295,7 +295,7 @@ export function GlobalFilters({
     <Card bg="white">
       <CardBody>
         <Stack spacing={4}>
-          <Flex justify="space-between" wrap="wrap" gap={3}>
+          <Flex justify="space-between" flexWrap="wrap" gap={3}>
             <HStack spacing={3} flexWrap="wrap">
               <FormControl maxW="180px">
                 <FormLabel fontSize="sm">Relative period</FormLabel>
@@ -489,7 +489,7 @@ export function TimeSeriesPanel({ data, filters }: { data: DashboardData; filter
     <Grid templateColumns={{ base: "1fr", xl: "2fr 1fr" }} gap={4}>
       <Card>
         <CardHeader>
-          <Flex justify="space-between" align="center" wrap="wrap" gap={3}>
+          <Flex justify="space-between" align="center" flexWrap="wrap" gap={3}>
             <Box>
               <Text fontWeight="700">Temporal signals</Text>
               <Text fontSize="sm" color="slate.600">Monthly trend view for product, operational and clinical indicators.</Text>
@@ -661,10 +661,10 @@ function TableToolbar({
   setSearch: (value: string) => void;
   exportName: string;
   rows: Record<string, unknown>[];
-  children?: React.ReactNode;
+  children?: ReactNode;
 }) {
   return (
-    <Flex justify="space-between" align={{ base: "start", md: "center" }} wrap="wrap" gap={3}>
+    <Flex justify="space-between" align={{ base: "start", md: "center" }} flexWrap="wrap" gap={3}>
       <Box>
         <Text fontWeight="700">{title}</Text>
         <Text fontSize="sm" color="slate.600">{subtitle}</Text>
