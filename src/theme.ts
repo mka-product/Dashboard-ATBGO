@@ -8,10 +8,22 @@ const config: ThemeConfig = {
 export const theme = extendTheme({
   config,
   fonts: {
-    heading: '"Avenir Next", "Segoe UI", sans-serif',
-    body: '"IBM Plex Sans", "Segoe UI", sans-serif',
+    heading: '"Avenir Next", "Helvetica Neue", sans-serif',
+    body: '"Avenir Next", "Helvetica Neue", sans-serif',
   },
   colors: {
+    msf: {
+      50: "#fff3f2",
+      100: "#ffd9d5",
+      200: "#ffbeb7",
+      300: "#ffa299",
+      400: "#ff877a",
+      500: "#ef3b2d",
+      600: "#c92d21",
+      700: "#9f2118",
+      800: "#75150f",
+      900: "#4b0906",
+    },
     slate: {
       50: "#f5f8fb",
       100: "#d9e2ec",
@@ -52,17 +64,48 @@ export const theme = extendTheme({
   styles: {
     global: {
       body: {
-        bg: "slate.50",
-        color: "slate.900",
+        bg: "#f3f3f1",
+        color: "#1f1f1f",
       },
     },
   },
   components: {
+    Button: {
+      variants: {
+        solid: {
+          bg: "msf.500",
+          color: "white",
+          _hover: { bg: "msf.600" },
+        },
+        outline: {
+          borderColor: "blackAlpha.300",
+          color: "slate.900",
+          _hover: { bg: "blackAlpha.50" },
+        },
+      },
+    },
     Card: {
       baseStyle: {
         container: {
-          borderRadius: "24px",
-          boxShadow: "0 18px 40px rgba(16, 42, 67, 0.08)",
+          borderRadius: "18px",
+          boxShadow: "0 8px 24px rgba(0, 0, 0, 0.06)",
+          border: "1px solid",
+          borderColor: "blackAlpha.100",
+          bg: "white",
+        },
+      },
+    },
+    Tabs: {
+      variants: {
+        line: {
+          tab: {
+            fontWeight: "700",
+            color: "slate.700",
+            _selected: {
+              color: "msf.600",
+              borderColor: "msf.500",
+            },
+          },
         },
       },
     },

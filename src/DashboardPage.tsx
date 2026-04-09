@@ -2,11 +2,15 @@ import {
   Badge,
   Box,
   Container,
-  Divider,
   Flex,
   Heading,
   HStack,
   Stack,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
   Text,
 } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
@@ -35,26 +39,38 @@ export function DashboardPage() {
           <Box
             px={{ base: 6, md: 8 }}
             py={{ base: 6, md: 8 }}
-            borderRadius="32px"
-            bg="linear-gradient(135deg, #102a43 0%, #1f4f63 52%, #e6fffb 160%)"
-            color="white"
+            borderRadius="24px"
+            bg="white"
+            border="1px solid"
+            borderColor="blackAlpha.100"
+            position="relative"
+            overflow="hidden"
           >
+            <Box position="absolute" left={0} top={0} bottom={0} w={{ base: "8px", md: "12px" }} bg="msf.500" />
             <Flex justify="space-between" align={{ base: "start", lg: "end" }} gap={5} flexWrap="wrap">
-              <Box maxW="820px">
+              <Box maxW="820px" pl={{ base: 2, md: 4 }}>
                 <HStack spacing={3} mb={4} flexWrap="wrap">
                   <Badge colorScheme="green" px={3} py={1} borderRadius="full">Mock environment</Badge>
-                  <Badge colorScheme="cyan" px={3} py={1} borderRadius="full">SaMD / AST / LMIC</Badge>
-                  <Badge colorScheme="orange" px={3} py={1} borderRadius="full">Product + QA/RA + Ops</Badge>
+                  <Badge bg="black" color="white" px={3} py={1} borderRadius="full">SaMD / AST / LMIC</Badge>
+                  <Badge colorScheme="red" px={3} py={1} borderRadius="full">Product + QA/RA + Ops</Badge>
                 </HStack>
-                <Heading size="2xl" mb={3}>Antibiogo Programme Intelligence Dashboard</Heading>
-                <Text fontSize="lg" color="whiteAlpha.900">
+                <Heading size="2xl" mb={3} color="gray.900">Antibiogo Dashboard</Heading>
+                <Text fontSize="lg" color="gray.700">
                   KPI cockpit for a medical SaMD deployed across microbiology laboratories in LMIC settings, combining technical robustness, adoption, clinical quality and governance.
                 </Text>
               </Box>
-              <Stack spacing={2} bg="whiteAlpha.160" p={5} borderRadius="24px" minW={{ base: "full", lg: "360px" }}>
-                <Text fontSize="sm" color="whiteAlpha.800">Last mock refresh</Text>
-                <Text fontSize="xl" fontWeight="700">{data.generatedAt.slice(0, 10)}</Text>
-                <Text fontSize="sm" color="whiteAlpha.800">
+              <Stack
+                spacing={2}
+                bg="gray.50"
+                p={5}
+                borderRadius="18px"
+                minW={{ base: "full", lg: "360px" }}
+                border="1px solid"
+                borderColor="blackAlpha.100"
+              >
+                <Text fontSize="sm" color="gray.600" textTransform="uppercase" letterSpacing="0.08em">Last mock refresh</Text>
+                <Text fontSize="xl" fontWeight="700" color="gray.900">{data.generatedAt.slice(0, 10)}</Text>
+                <Text fontSize="sm" color="gray.700">
                   Perimeter: {data.countries.length} countries, {data.labs.length} labs, {data.users.length} users, {data.astRecords.length.toLocaleString()} AST records, {data.sessions.length.toLocaleString()} sessions.
                 </Text>
               </Stack>
@@ -63,33 +79,48 @@ export function DashboardPage() {
 
           <GlobalFilters data={data} filters={filters} setFilters={setFilters} />
 
-          <KPIGrid data={data} filters={filters} />
+          <Tabs variant="line" colorScheme="red" isLazy>
+            <TabList
+              bg="transparent"
+              borderBottom="1px solid"
+              borderColor="blackAlpha.200"
+              gap={2}
+              flexWrap="wrap"
+            >
+              <Tab>Overview</Tab>
+              <Tab>Geography & Labs</Tab>
+              <Tab>Field Ops</Tab>
+              <Tab>Clinical Quality</Tab>
+            </TabList>
 
-          <TimeSeriesPanel data={data} filters={filters} />
+            <TabPanels px={0}>
+              <TabPanel px={0} pt={6}>
+                <Stack spacing={6}>
+                  <KPIGrid data={data} filters={filters} />
+                  <TimeSeriesPanel data={data} filters={filters} />
+                </Stack>
+              </TabPanel>
 
-          <GeoOperationalView data={data} filters={filters} />
+              <TabPanel px={0} pt={6}>
+                <Stack spacing={6}>
+                  <GeoOperationalView data={data} filters={filters} />
+                  <LabsTable data={data} filters={filters} />
+                </Stack>
+              </TabPanel>
 
-          <LabsTable data={data} filters={filters} />
+              <TabPanel px={0} pt={6}>
+                <Stack spacing={6}>
+                  <ActionCenter data={data} filters={filters} />
+                  <FeedbackTable data={data} filters={filters} />
+                  <IncidentTable data={data} filters={filters} />
+                </Stack>
+              </TabPanel>
 
-          <Stack spacing={4}>
-            <Divider />
-            <Text fontWeight="700" color="slate.700">Field signal and quality operations</Text>
-          </Stack>
-
-          <FeedbackTable data={data} filters={filters} />
-
-          <IncidentTable data={data} filters={filters} />
-
-          <ClinicalQualityPanel data={data} filters={filters} />
-
-          <ActionCenter data={data} filters={filters} />
-
-          <Box px={4} py={6}>
-            <Text fontWeight="700" mb={2}>Architecture note</Text>
-            <Text color="slate.700">
-              The app uses a single React state store for global filters, deterministic mock data generators in <code>src/data/mockData.ts</code>, aggregation helpers in <code>src/utils/dashboard.ts</code>, and Chakra UI sections designed for product review, QA/RA triage and programme operations. Data intentionally reflects rollout maturity, connectivity variability, LIS adoption and clinical rule sensitivity over 24 months.
-            </Text>
-          </Box>
+              <TabPanel px={0} pt={6}>
+                <ClinicalQualityPanel data={data} filters={filters} />
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
         </Stack>
       </Container>
     </Box>

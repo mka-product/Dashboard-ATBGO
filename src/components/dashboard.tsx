@@ -108,7 +108,7 @@ export function InfoPopover({
       <PopoverTrigger>
         <IconButton aria-label={title} size="sm" variant="ghost" icon={<InfoOutlineIcon />} />
       </PopoverTrigger>
-      <PopoverContent borderRadius="18px" borderColor="slate.100">
+      <PopoverContent borderRadius="14px" borderColor="blackAlpha.200">
         <PopoverArrow />
         <PopoverCloseButton />
         <PopoverHeader fontWeight="700">{title}</PopoverHeader>
@@ -145,19 +145,19 @@ function deltaColor(delta: number) {
 
 function toneBg(tone: string) {
   return {
-    green: "green.50",
-    red: "red.50",
-    teal: "teal.50",
-    blue: "blue.50",
-    orange: "orange.50",
-  }[tone] ?? "slate.50";
+    green: "#f7faf7",
+    red: "#fff4f3",
+    teal: "#f6f6f4",
+    blue: "#f5f8fc",
+    orange: "#fff8f1",
+  }[tone] ?? "white";
 }
 
 function toneColor(tone: string) {
   return {
     green: "green.600",
-    red: "red.600",
-    teal: "teal.600",
+    red: "msf.600",
+    teal: "slate.700",
     blue: "blue.600",
     orange: "orange.600",
   }[tone] ?? "slate.700";
@@ -212,7 +212,7 @@ export function KPICard({
             {item.delta >= 0 ? "+" : ""}
             {item.delta.toFixed(1)}% vs previous period
           </StatHelpText>
-          <Badge mt={3} colorScheme={item.delta >= 0 ? "green" : "orange"} borderRadius="full" px={3} py={1}>
+          <Badge mt={3} colorScheme={item.delta >= 0 ? "green" : "red"} borderRadius="full" px={3} py={1}>
             {item.delta >= 0 ? "Trending better" : "Needs attention"}
           </Badge>
         </Stat>
@@ -224,7 +224,7 @@ export function KPICard({
 export function KPIGrid({ data, filters }: { data: DashboardData; filters: GlobalFiltersState }) {
   const metrics = useMemo(() => getOverviewMetrics(data, filters), [data, filters]);
   return (
-    <SimpleGrid columns={{ base: 1, md: 2, xl: 5 }} spacing={4}>
+    <SimpleGrid columns={{ base: 1, md: 2, xl: 3, "2xl": 5 }} spacing={4}>
       {metrics.map((item, index) => (
         <KPICard key={item.key} item={item} index={index} />
       ))}
@@ -351,7 +351,7 @@ export function GlobalFilters({
                 </Stack>
               </InfoPopover>
             </HStack>
-            <HStack>
+            <Stack direction={{ base: "column", md: "row" }} align={{ base: "stretch", md: "center" }}>
               <Badge colorScheme={activeCount ? "teal" : "gray"} borderRadius="full" px={3} py={1}>
                 {activeCount} active filters
               </Badge>
@@ -361,12 +361,12 @@ export function GlobalFilters({
               <Button variant="ghost" onClick={() => setFilters(defaultFilters)}>
                 Reset
               </Button>
-            </HStack>
+            </Stack>
           </Flex>
           <HStack spacing={2} flexWrap="wrap">
             {activeChips.length ? (
               activeChips.slice(0, 10).map((chip) => (
-                <Badge key={chip.key} colorScheme="gray" borderRadius="full" px={3} py={1}>
+                <Badge key={chip.key} bg="gray.100" color="gray.800" borderRadius="full" px={3} py={1}>
                   {chip.label}
                 </Badge>
               ))
@@ -611,14 +611,14 @@ export function GeoOperationalView({ data, filters }: { data: DashboardData; fil
         </CardHeader>
         <CardBody>
           <Stack spacing={4}>
-            <HStack>
+            <Stack direction={{ base: "column", md: "row" }}>
               <Select value={primaryCountry} onChange={(e) => setPrimaryCountry(e.target.value)}>
                 {rows.map((row) => <option key={row.id} value={row.country}>{row.country}</option>)}
               </Select>
               <Select value={secondaryCountry} onChange={(e) => setSecondaryCountry(e.target.value)}>
                 {rows.map((row) => <option key={row.id} value={row.country}>{row.country}</option>)}
               </Select>
-            </HStack>
+            </Stack>
             <Box h="280px">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={compare}>
@@ -663,16 +663,16 @@ function TableToolbar({
         <Text fontWeight="700">{title}</Text>
         <Text fontSize="sm" color="slate.600">{subtitle}</Text>
       </Box>
-      <HStack spacing={3} wrap="wrap">
+      <Flex gap={3} flexWrap="wrap" justify={{ base: "stretch", md: "flex-end" }}>
         {children}
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search"
-          maxW="220px"
+          maxW={{ base: "full", md: "220px" }}
         />
         <CSVExportButton filename={exportName} rows={rows} />
-      </HStack>
+      </Flex>
     </Flex>
   );
 }
@@ -1015,11 +1015,11 @@ export function ActionCenter({ data, filters }: { data: DashboardData; filters: 
       <CardBody>
         <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={4}>
           {items.map((item) => (
-            <Card key={item.title} bg={item.priority === "High" ? "red.50" : "orange.50"}>
+            <Card key={item.title} bg={item.priority === "High" ? "red.50" : "gray.50"}>
               <CardBody>
                 <Flex justify="space-between" align="start" mb={3}>
                   <Text fontWeight="700">{item.title}</Text>
-                  <Badge colorScheme={item.priority === "High" ? "red" : "orange"}>{item.priority}</Badge>
+                  <Badge colorScheme={item.priority === "High" ? "red" : "gray"}>{item.priority}</Badge>
                 </Flex>
                 <Stack spacing={2} fontSize="sm">
                   <Text><strong>Rationale:</strong> {item.rationale}</Text>
