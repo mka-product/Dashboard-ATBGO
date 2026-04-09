@@ -1,5 +1,10 @@
 import { DashboardPage } from "./DashboardPage";
+import { LocaleProvider } from "./i18n";
 
 export default function App() {
-  return <DashboardPage />;
+  return (
+    <LocaleProvider>
+      <DashboardPage />
+    </LocaleProvider>
+  );
 }

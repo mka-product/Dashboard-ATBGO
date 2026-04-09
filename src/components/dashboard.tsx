@@ -79,6 +79,7 @@ import {
 import { useMemo, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 import { exportRowsToCsv } from "../utils/csv";
 import { antibioticOptions, bacteriaOptions } from "../data/mockData";
+import { useLocale } from "../i18n";
 import {
   countActiveFilters,
   defaultFilters,
@@ -108,7 +109,7 @@ export function InfoPopover({
       <PopoverTrigger>
         <IconButton aria-label={title} size="sm" variant="ghost" icon={<InfoOutlineIcon />} />
       </PopoverTrigger>
-      <PopoverContent borderRadius="14px" borderColor="blackAlpha.200">
+      <PopoverContent borderRadius="4px" borderColor="blackAlpha.200">
         <PopoverArrow />
         <PopoverCloseButton />
         <PopoverHeader fontWeight="700">{title}</PopoverHeader>
@@ -125,6 +126,7 @@ export function CSVExportButton({
   filename: string;
   rows: Record<string, unknown>[];
 }) {
+  const { t } = useLocale();
   return (
     <Button
       leftIcon={<DownloadIcon />}
@@ -132,7 +134,7 @@ export function CSVExportButton({
       variant="outline"
       onClick={() => exportRowsToCsv(filename, rows)}
     >
-      Export CSV
+      {t("exportCsv")}
     </Button>
   );
 }
@@ -172,6 +174,7 @@ export function KPICard({
   item: ReturnType<typeof getOverviewMetrics>[number];
   index: number;
 }) {
+  const { t } = useLocale();
   const KpiIcon = kpiIcons[index % kpiIcons.length];
   return (
     <Card bg={toneBg(item.tone)} border="1px solid" borderColor="white">
@@ -189,7 +192,7 @@ export function KPICard({
             <HStack spacing={1}>
               <Flex
                 bg="white"
-                borderRadius="full"
+                borderRadius="4px"
                 p={2}
                 align="center"
                 justify="center"
@@ -197,23 +200,23 @@ export function KPICard({
               >
                 <Icon as={KpiIcon} boxSize={5} />
               </Flex>
-              <InfoPopover title={`How to read ${item.label}`}>
+              <InfoPopover title={t("kpiRead", { label: item.label })}>
                 <Stack spacing={3} fontSize="sm">
-                  <Text><strong>Definition:</strong> {item.description}</Text>
-                  <Text><strong>Formula:</strong> {item.formula}</Text>
-                  <Text><strong>Why it matters:</strong> This KPI helps product, QA/RA and field teams separate site frictions from true product regressions.</Text>
-                  <Text><strong>Threshold:</strong> {item.threshold}</Text>
-                  <Text><strong>Suggested action:</strong> {item.action}</Text>
+                  <Text><strong>{t("definition")}:</strong> {item.description}</Text>
+                  <Text><strong>{t("formula")}:</strong> {item.formula}</Text>
+                  <Text><strong>{t("whyItMatters")}:</strong> {t("whyItMattersBody")}</Text>
+                  <Text><strong>{t("threshold")}:</strong> {item.threshold}</Text>
+                  <Text><strong>{t("suggestedAction")}:</strong> {item.action}</Text>
                 </Stack>
               </InfoPopover>
             </HStack>
           </Flex>
           <StatHelpText mb={0} color={`${deltaColor(item.delta)}.600`}>
             {item.delta >= 0 ? "+" : ""}
-            {item.delta.toFixed(1)}% vs previous period
+            {item.delta.toFixed(1)}% {t("vsPreviousPeriod")}
           </StatHelpText>
-          <Badge mt={3} colorScheme={item.delta >= 0 ? "green" : "red"} borderRadius="full" px={3} py={1}>
-            {item.delta >= 0 ? "Trending better" : "Needs attention"}
+          <Badge mt={3} colorScheme={item.delta >= 0 ? "green" : "red"} borderRadius="4px" px={3} py={1}>
+            {item.delta >= 0 ? t("trendingBetter") : t("needsAttention")}
           </Badge>
         </Stat>
       </CardBody>
@@ -273,6 +276,7 @@ export function GlobalFilters({
   filters: GlobalFiltersState;
   setFilters: Dispatch<SetStateAction<GlobalFiltersState>>;
 }) {
+  const { t } = useLocale();
   const meta = useMemo(() => getFilterMeta(data), [data]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const activeCount = countActiveFilters(filters);
@@ -289,24 +293,35 @@ export function GlobalFilters({
     <Card bg="white">
       <CardBody>
         <Stack spacing={4}>
-          <Flex justify="space-between" flexWrap="wrap" gap={3}>
-            <HStack spacing={3} flexWrap="wrap">
-              <FormControl maxW="180px">
-                <FormLabel fontSize="sm">Relative period</FormLabel>
+          <Flex
+            justify="space-between"
+            align={{ base: "stretch", xl: "end" }}
+            direction={{ base: "column", xl: "row" }}
+            gap={4}
+          >
+            <Flex
+              flex="1"
+              gap={3}
+              align="end"
+              wrap={{ base: "wrap", xl: "nowrap" }}
+              minW={0}
+            >
+              <FormControl flex={{ base: "1 1 180px", xl: "0 0 170px" }} minW={0}>
+                <FormLabel fontSize="sm">{t("relativePeriod")}</FormLabel>
                 <Select
                   value={filters.periodMonths}
                   onChange={(event) =>
                     setFilters((current) => ({ ...current, periodMonths: Number(event.target.value) }))
                   }
                 >
-                  <option value={3}>Last 3 months</option>
-                  <option value={6}>Last 6 months</option>
-                  <option value={12}>Last 12 months</option>
-                  <option value={24}>Last 24 months</option>
+                  <option value={3}>{t("last3Months")}</option>
+                  <option value={6}>{t("last6Months")}</option>
+                  <option value={12}>{t("last12Months")}</option>
+                  <option value={24}>{t("last24Months")}</option>
                 </Select>
               </FormControl>
-              <FormControl maxW="220px">
-                <FormLabel fontSize="sm">Country focus</FormLabel>
+              <FormControl flex={{ base: "1 1 220px", xl: "0 0 220px" }} minW={0}>
+                <FormLabel fontSize="sm">{t("countryFocus")}</FormLabel>
                 <Select
                   value={filters.countryIds[0] ?? ""}
                   onChange={(event) =>
@@ -316,7 +331,7 @@ export function GlobalFilters({
                     }))
                   }
                 >
-                  <option value="">All countries</option>
+                  <option value="">{t("allCountries")}</option>
                   {meta.countries.map((country) => (
                     <option key={country.id} value={country.id}>
                       {country.name}
@@ -324,8 +339,8 @@ export function GlobalFilters({
                   ))}
                 </Select>
               </FormControl>
-              <FormControl maxW="220px">
-                <FormLabel fontSize="sm">Version focus</FormLabel>
+              <FormControl flex={{ base: "1 1 220px", xl: "0 0 220px" }} minW={0}>
+                <FormLabel fontSize="sm">{t("versionFocus")}</FormLabel>
                 <Select
                   value={filters.versionIds[0] ?? ""}
                   onChange={(event) =>
@@ -335,7 +350,7 @@ export function GlobalFilters({
                     }))
                   }
                 >
-                  <option value="">All versions</option>
+                  <option value="">{t("allVersions")}</option>
                   {meta.versions.map((version) => (
                     <option key={version.id} value={version.id}>
                       {version.id}
@@ -343,36 +358,43 @@ export function GlobalFilters({
                   ))}
                 </Select>
               </FormControl>
-              <InfoPopover title="About filters">
-                <Stack spacing={3} fontSize="sm">
-                  <Text><strong>Version:</strong> helps isolate regressions after rollout versus site-level constraints.</Text>
-                  <Text><strong>Connectivity:</strong> useful to separate product defects from offline operating context.</Text>
-                  <Text><strong>Clinical quality:</strong> bacteria and antibiotic filters support targeted AST rule review.</Text>
-                </Stack>
-              </InfoPopover>
-            </HStack>
-            <Stack direction={{ base: "column", md: "row" }} align={{ base: "stretch", md: "center" }}>
-              <Badge colorScheme={activeCount ? "teal" : "gray"} borderRadius="full" px={3} py={1}>
-                {activeCount} active filters
+              <Box pt={{ base: 0, xl: 0 }} flex={{ base: "0 0 auto", xl: "0 0 auto" }}>
+                <InfoPopover title={t("aboutFilters")}>
+                  <Stack spacing={3} fontSize="sm">
+                    <Text><strong>{t("version")}:</strong> {t("versionHelp")}</Text>
+                    <Text><strong>{t("connectivity")}:</strong> {t("connectivityHelp")}</Text>
+                    <Text><strong>{t("clinicalQuality")}:</strong> {t("clinicalHelp")}</Text>
+                  </Stack>
+                </InfoPopover>
+              </Box>
+            </Flex>
+            <Flex
+              gap={3}
+              align="center"
+              justify={{ base: "space-between", xl: "flex-end" }}
+              wrap={{ base: "wrap", xl: "nowrap" }}
+            >
+              <Badge colorScheme={activeCount ? "teal" : "gray"} borderRadius="4px" px={3} py={1}>
+                {t("activeFilters", { count: activeCount })}
               </Badge>
               <Button leftIcon={<SettingsIcon />} onClick={onOpen}>
-                Advanced filters
+                {t("advancedFilters")}
               </Button>
               <Button variant="ghost" onClick={() => setFilters(defaultFilters)}>
-                Reset
+                {t("reset")}
               </Button>
-            </Stack>
+            </Flex>
           </Flex>
           <HStack spacing={2} flexWrap="wrap">
             {activeChips.length ? (
               activeChips.slice(0, 10).map((chip) => (
-                <Badge key={chip.key} bg="gray.100" color="gray.800" borderRadius="full" px={3} py={1}>
+                <Badge key={chip.key} bg="gray.100" color="gray.800" borderRadius="4px" px={3} py={1}>
                   {chip.label}
                 </Badge>
               ))
             ) : (
               <Text fontSize="sm" color="slate.600">
-                No advanced filters applied. The dashboard currently shows the full mock programme perimeter.
+                {t("noAdvancedFilters")}
               </Text>
             )}
           </HStack>
@@ -383,17 +405,17 @@ export function GlobalFilters({
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
-          <DrawerHeader>Advanced global filters</DrawerHeader>
+          <DrawerHeader>{t("advancedGlobalFilters")}</DrawerHeader>
           <DrawerBody>
             <Stack spacing={6}>
               <FilterChecklist
-                label="Regions"
+                label={t("regions")}
                 options={[...new Set(meta.countries.map((item) => item.region))]}
                 value={filters.regions}
                 onChange={(next) => setFilters((current) => ({ ...current, regions: next as GlobalFiltersState["regions"] }))}
               />
               <FilterChecklist
-                label="Laboratories"
+                label={t("laboratories")}
                 options={meta.labs.map((item) => item.name)}
                 value={meta.labs.filter((item) => filters.labIds.includes(item.id)).map((item) => item.name)}
                 onChange={(names) =>
@@ -404,64 +426,64 @@ export function GlobalFilters({
                 }
               />
               <FilterChecklist
-                label="Lab type"
+                label={t("labType")}
                 options={[...new Set(meta.labs.map((item) => item.type))]}
                 value={filters.labTypes}
                 onChange={(next) => setFilters((current) => ({ ...current, labTypes: next as GlobalFiltersState["labTypes"] }))}
               />
               <FilterChecklist
-                label="LIS status"
-                helper="Use this to separate stable integrations from pilot mappings."
+                label={t("lisStatus")}
+                helper={t("lisStatusHelp")}
                 options={[...new Set(meta.labs.map((item) => item.lisStatus))]}
                 value={filters.lisStatuses}
                 onChange={(next) => setFilters((current) => ({ ...current, lisStatuses: next as GlobalFiltersState["lisStatuses"] }))}
               />
               <FilterChecklist
-                label="Connectivity"
-                helper="Useful in LMIC contexts to compare robust sites versus constrained offline-heavy sites."
+                label={t("connectivity")}
+                helper={t("connectivityDrawerHelp")}
                 options={[...new Set(meta.labs.map((item) => item.connectivityLevel))]}
                 value={filters.connectivityLevels}
                 onChange={(next) => setFilters((current) => ({ ...current, connectivityLevels: next as GlobalFiltersState["connectivityLevels"] }))}
               />
               <FilterChecklist
-                label="Usage mode"
+                label={t("usageMode")}
                 options={["Online", "Offline"]}
                 value={filters.usageModes}
                 onChange={(next) => setFilters((current) => ({ ...current, usageModes: next as GlobalFiltersState["usageModes"] }))}
               />
               <FilterChecklist
-                label="User role"
+                label={t("userRole")}
                 options={["Lab technician", "Microbiologist", "QA lead", "Program admin", "IT focal point"]}
                 value={filters.userRoles}
                 onChange={(next) => setFilters((current) => ({ ...current, userRoles: next as GlobalFiltersState["userRoles"] }))}
               />
               <FilterChecklist
-                label="Bacteria"
-                helper="Useful for AST rule coverage and critical error review."
+                label={t("bacteria")}
+                helper={t("bacteriaHelp")}
                 options={bacteriaOptions}
                 value={filters.bacteria}
                 onChange={(next) => setFilters((current) => ({ ...current, bacteria: next }))}
               />
               <FilterChecklist
-                label="Antibiotic"
+                label={t("antibiotic")}
                 options={antibioticOptions}
                 value={filters.antibiotics}
                 onChange={(next) => setFilters((current) => ({ ...current, antibiotics: next }))}
               />
               <FilterChecklist
-                label="Feedback type"
+                label={t("feedbackType")}
                 options={["UX", "Bug", "Bacteria content", "Performance", "LIS", "Training"]}
                 value={filters.feedbackTypes}
                 onChange={(next) => setFilters((current) => ({ ...current, feedbackTypes: next as GlobalFiltersState["feedbackTypes"] }))}
               />
               <FilterChecklist
-                label="Incident severity"
+                label={t("incidentSeverity")}
                 options={["Low", "Medium", "High", "Critical"]}
                 value={filters.incidentSeverities}
                 onChange={(next) => setFilters((current) => ({ ...current, incidentSeverities: next as GlobalFiltersState["incidentSeverities"] }))}
               />
               <FilterChecklist
-                label="CAPA status"
+                label={t("capaStatus")}
                 options={["Open", "In progress", "Monitoring", "Closed"]}
                 value={filters.capaStatuses}
                 onChange={(next) => setFilters((current) => ({ ...current, capaStatuses: next as GlobalFiltersState["capaStatuses"] }))}
@@ -475,6 +497,7 @@ export function GlobalFilters({
 }
 
 export function TimeSeriesPanel({ data, filters }: { data: DashboardData; filters: GlobalFiltersState }) {
+  const { t } = useLocale();
   const series = useMemo(() => getTimeSeries(data, filters), [data, filters]);
   const roleData = useMemo(() => getRoleDistribution(data, filters), [data, filters]);
   const [metric, setMetric] = useState<"astVolume" | "astPrecision" | "crashRate" | "avgEntryTime" | "syncSuccess">("astVolume");
@@ -485,15 +508,15 @@ export function TimeSeriesPanel({ data, filters }: { data: DashboardData; filter
         <CardHeader>
           <Flex justify="space-between" align="center" flexWrap="wrap" gap={3}>
             <Box>
-              <Text fontWeight="700">Temporal signals</Text>
-              <Text fontSize="sm" color="slate.600">Monthly trend view for product, operational and clinical indicators.</Text>
+              <Text fontWeight="700">{t("temporalSignals")}</Text>
+              <Text fontSize="sm" color="slate.600">{t("temporalSignalsSubtitle")}</Text>
             </Box>
             <Select maxW="230px" value={metric} onChange={(e) => setMetric(e.target.value as typeof metric)}>
-              <option value="astVolume">AST volume</option>
-              <option value="astPrecision">AST precision</option>
-              <option value="crashRate">Crash rate</option>
-              <option value="avgEntryTime">Entry time</option>
-              <option value="syncSuccess">Sync success</option>
+              <option value="astVolume">{t("astVolume")}</option>
+              <option value="astPrecision">{t("astPrecision")}</option>
+              <option value="crashRate">{t("crashRate")}</option>
+              <option value="avgEntryTime">{t("entryTime")}</option>
+              <option value="syncSuccess">{t("syncSuccess")}</option>
             </Select>
           </Flex>
         </CardHeader>
@@ -507,19 +530,19 @@ export function TimeSeriesPanel({ data, filters }: { data: DashboardData; filter
                 <RechartsTooltip />
                 <Legend />
                 <Line type="monotone" dataKey={metric} stroke="#168f7e" strokeWidth={3} dot={false} name={metric} />
-                <Line type="monotone" dataKey="offlineShare" stroke="#d97706" strokeWidth={2} dot={false} name="Offline share %" />
+                <Line type="monotone" dataKey="offlineShare" stroke="#d97706" strokeWidth={2} dot={false} name={t("offlineShare")} />
               </LineChart>
             </ResponsiveContainer>
           </Box>
           <Text fontSize="sm" color="slate.600" mt={3}>
-            Automatic annotation logic flags months with increased critical error burden for clinical review.
+            {t("clinicalReviewNote")}
           </Text>
         </CardBody>
       </Card>
       <Card>
         <CardHeader>
-          <Text fontWeight="700">Role distribution</Text>
-          <Text fontSize="sm" color="slate.600">Role mix helps interpret adoption, governance maturity and support load.</Text>
+          <Text fontWeight="700">{t("roleDistribution")}</Text>
+          <Text fontSize="sm" color="slate.600">{t("roleDistributionSubtitle")}</Text>
         </CardHeader>
         <CardBody>
           <Box h="280px">
@@ -539,8 +562,8 @@ export function TimeSeriesPanel({ data, filters }: { data: DashboardData; filter
       </Card>
       <Card gridColumn={{ base: "auto", xl: "1 / span 2" }}>
         <CardHeader>
-          <Text fontWeight="700">Operational performance mix</Text>
-          <Text fontSize="sm" color="slate.600">Overlay of sync resilience, product responsiveness and AST output.</Text>
+          <Text fontWeight="700">{t("operationalPerformanceMix")}</Text>
+          <Text fontSize="sm" color="slate.600">{t("operationalPerformanceMixSubtitle")}</Text>
         </CardHeader>
         <CardBody>
           <Box h="300px">
@@ -564,6 +587,7 @@ export function TimeSeriesPanel({ data, filters }: { data: DashboardData; filter
 }
 
 export function GeoOperationalView({ data, filters }: { data: DashboardData; filters: GlobalFiltersState }) {
+  const { t } = useLocale();
   const rows = useMemo(() => getGeoRows(data, filters), [data, filters]);
   const [primaryCountry, setPrimaryCountry] = useState(rows[0]?.country ?? "");
   const [secondaryCountry, setSecondaryCountry] = useState(rows[1]?.country ?? "");
@@ -573,8 +597,8 @@ export function GeoOperationalView({ data, filters }: { data: DashboardData; fil
     <Grid templateColumns={{ base: "1fr", xl: "1.6fr 1fr" }} gap={4}>
       <Card>
         <CardHeader>
-          <Text fontWeight="700">Country operational footprint</Text>
-          <Text fontSize="sm" color="slate.600">A spatial proxy view combining adoption, trust, incidents and connectivity risk.</Text>
+          <Text fontWeight="700">{t("countryOperationalFootprint")}</Text>
+          <Text fontSize="sm" color="slate.600">{t("countryOperationalFootprintSubtitle")}</Text>
         </CardHeader>
         <CardBody>
           <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
@@ -591,12 +615,12 @@ export function GeoOperationalView({ data, filters }: { data: DashboardData; fil
                     </Badge>
                   </Flex>
                   <SimpleGrid columns={2} spacing={3} fontSize="sm">
-                    <Box><Text color="slate.500">Active labs</Text><Text fontWeight="700">{row.activeLabs}</Text></Box>
-                    <Box><Text color="slate.500">AST precision</Text><Text fontWeight="700">{row.astPrecision.toFixed(1)}%</Text></Box>
-                    <Box><Text color="slate.500">Open incidents</Text><Text fontWeight="700">{row.incidents}</Text></Box>
-                    <Box><Text color="slate.500">Sync success</Text><Text fontWeight="700">{row.syncSuccess.toFixed(1)}%</Text></Box>
-                    <Box><Text color="slate.500">Connectivity</Text><Text fontWeight="700">{row.connectivity}</Text></Box>
-                    <Box><Text color="slate.500">Data trust</Text><Text fontWeight="700">{row.dataQualityScore.toFixed(0)}/100</Text></Box>
+                    <Box><Text color="slate.500">{t("activeLabs")}</Text><Text fontWeight="700">{row.activeLabs}</Text></Box>
+                    <Box><Text color="slate.500">{t("astPrecision")}</Text><Text fontWeight="700">{row.astPrecision.toFixed(1)}%</Text></Box>
+                    <Box><Text color="slate.500">{t("openIncidents")}</Text><Text fontWeight="700">{row.incidents}</Text></Box>
+                    <Box><Text color="slate.500">{t("syncSuccess")}</Text><Text fontWeight="700">{row.syncSuccess.toFixed(1)}%</Text></Box>
+                    <Box><Text color="slate.500">{t("connectivity")}</Text><Text fontWeight="700">{row.connectivity}</Text></Box>
+                    <Box><Text color="slate.500">{t("dataTrust")}</Text><Text fontWeight="700">{row.dataQualityScore.toFixed(0)}/100</Text></Box>
                   </SimpleGrid>
                 </CardBody>
               </Card>
@@ -606,8 +630,8 @@ export function GeoOperationalView({ data, filters }: { data: DashboardData; fil
       </Card>
       <Card>
         <CardHeader>
-          <Text fontWeight="700">Compare two countries</Text>
-          <Text fontSize="sm" color="slate.600">Useful in programme reviews to contrast maturity and operational drag.</Text>
+          <Text fontWeight="700">{t("compareTwoCountries")}</Text>
+          <Text fontSize="sm" color="slate.600">{t("compareTwoCountriesSubtitle")}</Text>
         </CardHeader>
         <CardBody>
           <Stack spacing={4}>
@@ -627,9 +651,9 @@ export function GeoOperationalView({ data, filters }: { data: DashboardData; fil
                   <YAxis />
                   <RechartsTooltip />
                   <Legend />
-                  <Bar dataKey="astPrecision" fill="#168f7e" name="AST precision %" />
-                  <Bar dataKey="dataQualityScore" fill="#2563eb" name="Data trust score" />
-                  <Bar dataKey="incidents" fill="#dc2626" name="Open incidents" />
+                  <Bar dataKey="astPrecision" fill="#168f7e" name={t("astPrecision")} />
+                  <Bar dataKey="dataQualityScore" fill="#2563eb" name={t("dataTrustScore")} />
+                  <Bar dataKey="incidents" fill="#dc2626" name={t("openIncidents")} />
                 </BarChart>
               </ResponsiveContainer>
             </Box>
@@ -657,6 +681,7 @@ function TableToolbar({
   rows: Record<string, unknown>[];
   children?: ReactNode;
 }) {
+  const { t } = useLocale();
   return (
     <Flex justify="space-between" align={{ base: "start", md: "center" }} flexWrap="wrap" gap={3}>
       <Box>
@@ -668,7 +693,7 @@ function TableToolbar({
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search"
+          placeholder={t("search")}
           maxW={{ base: "full", md: "220px" }}
         />
         <CSVExportButton filename={exportName} rows={rows} />
@@ -688,6 +713,7 @@ function statusColor(value: string) {
 }
 
 export function LabsTable({ data, filters }: { data: DashboardData; filters: GlobalFiltersState }) {
+  const { t } = useLocale();
   const rows = useMemo(() => getLabRows(data, filters), [data, filters]);
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<keyof typeof rows[number]>("riskScore");
@@ -709,18 +735,18 @@ export function LabsTable({ data, filters }: { data: DashboardData; filters: Glo
     <Card>
       <CardHeader>
         <TableToolbar
-          title="Laboratories"
-          subtitle="Deployment health, adoption, clinical precision and operational risk by site."
+          title={t("laboratories")}
+          subtitle={t("laboratoriesSubtitle")}
           search={search}
           setSearch={setSearch}
           exportName="antibiogo_laboratories.csv"
           rows={filteredRows}
         >
           <Select value={sortKey} onChange={(e) => setSortKey(e.target.value as typeof sortKey)} maxW="200px">
-            <option value="riskScore">Sort by risk</option>
-            <option value="astPrecision">Sort by precision</option>
-            <option value="syncSuccess">Sort by sync success</option>
-            <option value="astPerMonth">Sort by AST volume</option>
+            <option value="riskScore">{t("sortByRisk")}</option>
+            <option value="astPrecision">{t("sortByPrecision")}</option>
+            <option value="syncSuccess">{t("sortBySyncSuccess")}</option>
+            <option value="astPerMonth">{t("sortByAstVolume")}</option>
           </Select>
         </TableToolbar>
       </CardHeader>
@@ -728,18 +754,18 @@ export function LabsTable({ data, filters }: { data: DashboardData; filters: Glo
         <Table size="sm">
           <Thead>
             <Tr>
-              <Th>Lab</Th>
-              <Th>Country</Th>
-              <Th>Deployment</Th>
-              <Th>Version</Th>
-              <Th isNumeric>Active users</Th>
+              <Th>{t("lab")}</Th>
+              <Th>{t("country")}</Th>
+              <Th>{t("deployment")}</Th>
+              <Th>{t("version")}</Th>
+              <Th isNumeric>{t("activeUsers")}</Th>
               <Th isNumeric>AST/mo</Th>
-              <Th isNumeric>Precision</Th>
-              <Th isNumeric>Crash</Th>
-              <Th isNumeric>Sync</Th>
-              <Th>LIS</Th>
-              <Th>Data quality</Th>
-              <Th>Risk</Th>
+              <Th isNumeric>{t("precision")}</Th>
+              <Th isNumeric>{t("crash")}</Th>
+              <Th isNumeric>{t("sync")}</Th>
+              <Th>{t("lisStatus")}</Th>
+              <Th>{t("dataQuality")}</Th>
+              <Th>{t("risk")}</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -774,10 +800,10 @@ export function LabsTable({ data, filters }: { data: DashboardData; filters: Glo
           </Tbody>
         </Table>
         <Flex justify="space-between" mt={4}>
-          <Text fontSize="sm" color="slate.600">Showing {currentRows.length} of {filteredRows.length} labs</Text>
+          <Text fontSize="sm" color="slate.600">{t("showing", { current: currentRows.length, total: filteredRows.length })}</Text>
           <HStack>
-            <Button size="sm" onClick={() => setPage((current) => Math.max(1, current - 1))}>Previous</Button>
-            <Button size="sm" onClick={() => setPage((current) => (current * 8 < filteredRows.length ? current + 1 : current))}>Next</Button>
+            <Button size="sm" onClick={() => setPage((current) => Math.max(1, current - 1))}>{t("previous")}</Button>
+            <Button size="sm" onClick={() => setPage((current) => (current * 8 < filteredRows.length ? current + 1 : current))}>{t("next")}</Button>
           </HStack>
         </Flex>
       </CardBody>
@@ -798,15 +824,15 @@ export function LabsTable({ data, filters }: { data: DashboardData; filters: Glo
                 </SimpleGrid>
                 <Card bg="slate.50">
                   <CardBody>
-                    <Text fontWeight="700" mb={2}>Latest field signal</Text>
+                    <Text fontWeight="700" mb={2}>{t("latestFieldSignal")}</Text>
                     <Text fontSize="sm">{selected.latestFeedback}</Text>
                   </CardBody>
                 </Card>
                 <Card bg="orange.50">
                   <CardBody>
-                    <Text fontWeight="700" mb={2}>Operational interpretation</Text>
+                    <Text fontWeight="700" mb={2}>{t("operationalInterpretation")}</Text>
                     <Text fontSize="sm">
-                      This site risk score is designed for programme review. High scores usually mix unstable sync, fragile adoption, or elevated clinical validation burden after rollout.
+                      {t("operationalInterpretationBody")}
                     </Text>
                   </CardBody>
                 </Card>
@@ -820,6 +846,7 @@ export function LabsTable({ data, filters }: { data: DashboardData; filters: Glo
 }
 
 export function FeedbackTable({ data, filters }: { data: DashboardData; filters: GlobalFiltersState }) {
+  const { t } = useLocale();
   const rows = useMemo(() => getFeedbackRows(data, filters), [data, filters]);
   const [search, setSearch] = useState("");
   const filteredRows = rows.filter((row) =>
@@ -829,8 +856,8 @@ export function FeedbackTable({ data, filters }: { data: DashboardData; filters:
     <Card>
       <CardHeader>
         <TableToolbar
-          title="Feedback"
-          subtitle="Field signal stream across survey, in-app, support and WhatsApp channels."
+          title={t("feedback")}
+          subtitle={t("feedbackSubtitle")}
           search={search}
           setSearch={setSearch}
           exportName="antibiogo_feedback.csv"
@@ -841,14 +868,14 @@ export function FeedbackTable({ data, filters }: { data: DashboardData; filters:
         <Table size="sm">
           <Thead>
             <Tr>
-              <Th>Date</Th>
-              <Th>Country</Th>
-              <Th>Lab</Th>
-              <Th>Channel</Th>
-              <Th>Type</Th>
-              <Th>Severity</Th>
-              <Th>Status</Th>
-              <Th isNumeric>Response h</Th>
+              <Th>{t("date")}</Th>
+              <Th>{t("country")}</Th>
+              <Th>{t("lab")}</Th>
+              <Th>{t("channel")}</Th>
+              <Th>{t("type")}</Th>
+              <Th>{t("severity")}</Th>
+              <Th>{t("status")}</Th>
+              <Th isNumeric>{t("responseHours")}</Th>
               <Th>Verbatim</Th>
             </Tr>
           </Thead>
@@ -874,6 +901,7 @@ export function FeedbackTable({ data, filters }: { data: DashboardData; filters:
 }
 
 export function IncidentTable({ data, filters }: { data: DashboardData; filters: GlobalFiltersState }) {
+  const { t } = useLocale();
   const rows = useMemo(() => getIncidentRows(data, filters), [data, filters]);
   const [search, setSearch] = useState("");
   const filteredRows = rows.filter((row) =>
@@ -883,8 +911,8 @@ export function IncidentTable({ data, filters }: { data: DashboardData; filters:
     <Card>
       <CardHeader>
         <TableToolbar
-          title="Incidents and QA"
-          subtitle="Operational anomalies, CAPA-linked issues and version-specific incidents."
+          title={t("incidentsQa")}
+          subtitle={t("incidentsQaSubtitle")}
           search={search}
           setSearch={setSearch}
           exportName="antibiogo_incidents.csv"
@@ -895,15 +923,15 @@ export function IncidentTable({ data, filters }: { data: DashboardData; filters:
         <Table size="sm">
           <Thead>
             <Tr>
-              <Th>Date</Th>
-              <Th>Version</Th>
-              <Th>Type</Th>
-              <Th>Country</Th>
-              <Th>Lab</Th>
-              <Th>KPI trigger</Th>
-              <Th>Owner</Th>
-              <Th>Action</Th>
-              <Th>Status</Th>
+              <Th>{t("date")}</Th>
+              <Th>{t("version")}</Th>
+              <Th>{t("type")}</Th>
+              <Th>{t("country")}</Th>
+              <Th>{t("lab")}</Th>
+              <Th>{t("kpiTrigger")}</Th>
+              <Th>{t("owner")}</Th>
+              <Th>{t("action")}</Th>
+              <Th>{t("status")}</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -928,6 +956,7 @@ export function IncidentTable({ data, filters }: { data: DashboardData; filters:
 }
 
 export function ClinicalQualityPanel({ data, filters }: { data: DashboardData; filters: GlobalFiltersState }) {
+  const { t } = useLocale();
   const rows = useMemo(() => getClinicalRows(data, filters), [data, filters]);
   const versionData = useMemo(() => getVersionDistribution(data, filters), [data, filters]);
   return (
@@ -936,14 +965,14 @@ export function ClinicalQualityPanel({ data, filters }: { data: DashboardData; f
         <CardHeader>
           <Flex justify="space-between" align="center">
             <Box>
-              <Text fontWeight="700">Clinical quality detail</Text>
-              <Text fontSize="sm" color="slate.600">Species-level concordance, critical error burden and manual validation patterns.</Text>
+              <Text fontWeight="700">{t("clinicalQualityDetail")}</Text>
+              <Text fontSize="sm" color="slate.600">{t("clinicalQualityDetailSubtitle")}</Text>
             </Box>
-            <InfoPopover title="Clinical quality notes">
+            <InfoPopover title={t("clinicalQualityNotes")}>
               <Stack spacing={3} fontSize="sm">
-                <Text><strong>AST precision:</strong> proportion of software interpretations matching the reference interpretation.</Text>
-                <Text><strong>Global precision vs critical errors:</strong> a small number of mismatches can remain clinically sensitive when they are very major errors.</Text>
-                <Text><strong>Why VME matters:</strong> false susceptibility can drive unsafe treatment decisions and must be tracked with heightened QA/RA scrutiny.</Text>
+                <Text>{t("astPrecisionDef")}</Text>
+                <Text>{t("globalPrecisionVsCritical")}</Text>
+                <Text>{t("whyVmeMatters")}</Text>
               </Stack>
             </InfoPopover>
           </Flex>
@@ -955,12 +984,12 @@ export function ClinicalQualityPanel({ data, filters }: { data: DashboardData; f
           <Table size="sm">
             <Thead>
               <Tr>
-                <Th>Bacteria</Th>
-                <Th isNumeric>Volume</Th>
-                <Th isNumeric>Precision</Th>
-                <Th isNumeric>Critical errors</Th>
-                <Th isNumeric>Manual validation</Th>
-                <Th>Top antibiotic</Th>
+                <Th>{t("bacteria")}</Th>
+                <Th isNumeric>{t("volume")}</Th>
+                <Th isNumeric>{t("precision")}</Th>
+                <Th isNumeric>{t("criticalErrors")}</Th>
+                <Th isNumeric>{t("manualValidation")}</Th>
+                <Th>{t("topAntibiotic")}</Th>
               </Tr>
             </Thead>
             <Tbody>
@@ -980,8 +1009,8 @@ export function ClinicalQualityPanel({ data, filters }: { data: DashboardData; f
       </Card>
       <Card>
         <CardHeader>
-          <Text fontWeight="700">Performance by version</Text>
-          <Text fontSize="sm" color="slate.600">Release quality view linking rollout footprint, incidents and concordance.</Text>
+          <Text fontWeight="700">{t("performanceByVersion")}</Text>
+          <Text fontSize="sm" color="slate.600">{t("performanceByVersionSubtitle")}</Text>
         </CardHeader>
         <CardBody>
           <Box h="320px">
@@ -992,9 +1021,9 @@ export function ClinicalQualityPanel({ data, filters }: { data: DashboardData; f
                 <YAxis />
                 <Legend />
                 <RechartsTooltip />
-                <Bar dataKey="labs" fill="#168f7e" name="Labs deployed" />
-                <Bar dataKey="incidents" fill="#dc2626" name="Incidents" />
-                <Bar dataKey="precision" fill="#2563eb" name="Precision %" />
+                <Bar dataKey="labs" fill="#168f7e" name={t("labsDeployed")} />
+                <Bar dataKey="incidents" fill="#dc2626" name={t("incidents")} />
+                <Bar dataKey="precision" fill="#2563eb" name={t("precision")} />
               </BarChart>
             </ResponsiveContainer>
           </Box>
@@ -1005,12 +1034,13 @@ export function ClinicalQualityPanel({ data, filters }: { data: DashboardData; f
 }
 
 export function ActionCenter({ data, filters }: { data: DashboardData; filters: GlobalFiltersState }) {
+  const { t } = useLocale();
   const items = useMemo(() => getActionItems(data, filters), [data, filters]);
   return (
     <Card>
       <CardHeader>
-        <Text fontWeight="700">Recommended actions</Text>
-        <Text fontSize="sm" color="slate.600">Operational watchlist translating KPI drift into product, QA/RA and field actions.</Text>
+        <Text fontWeight="700">{t("recommendedActions")}</Text>
+        <Text fontSize="sm" color="slate.600">{t("recommendedActionsSubtitle")}</Text>
       </CardHeader>
       <CardBody>
         <SimpleGrid columns={{ base: 1, xl: 2 }} spacing={4}>
@@ -1022,10 +1052,10 @@ export function ActionCenter({ data, filters }: { data: DashboardData; filters: 
                   <Badge colorScheme={item.priority === "High" ? "red" : "gray"}>{item.priority}</Badge>
                 </Flex>
                 <Stack spacing={2} fontSize="sm">
-                  <Text><strong>Rationale:</strong> {item.rationale}</Text>
-                  <Text><strong>Owner:</strong> {item.owner}</Text>
-                  <Text><strong>Next step:</strong> {item.nextStep}</Text>
-                  <Text><strong>Review date:</strong> {item.reviewDate}</Text>
+                  <Text><strong>{t("rationale")}:</strong> {item.rationale}</Text>
+                  <Text><strong>{t("owner")}:</strong> {item.owner}</Text>
+                  <Text><strong>{t("nextStep")}:</strong> {item.nextStep}</Text>
+                  <Text><strong>{t("reviewDate")}:</strong> {item.reviewDate}</Text>
                 </Stack>
               </CardBody>
             </Card>

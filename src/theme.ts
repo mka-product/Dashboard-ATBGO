@@ -87,7 +87,7 @@ export const theme = extendTheme({
     Card: {
       baseStyle: {
         container: {
-          borderRadius: "18px",
+          borderRadius: "6px",
           boxShadow: "0 8px 24px rgba(0, 0, 0, 0.06)",
           border: "1px solid",
           borderColor: "blackAlpha.100",

@@ -1,0 +1,348 @@
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+
+export type Locale = "en" | "fr";
+
+type TranslationParams = Record<string, string | number>;
+type TranslationValue = string | ((params?: TranslationParams) => string);
+
+const translations = {
+  en: {
+    mockEnvironment: "Mock environment",
+    productScope: "Product + QA/RA + Ops",
+    dashboardTitle: "Antibiogo Dashboard",
+    dashboardSubtitle:
+      "KPI cockpit for a medical SaMD deployed across microbiology laboratories in LMIC settings, combining technical robustness, adoption, clinical quality and governance.",
+    lastMockRefresh: "Last mock refresh",
+    perimeter: (params?: TranslationParams) =>
+      `Perimeter: ${params?.countries ?? ""} countries, ${params?.labs ?? ""} labs, ${params?.users ?? ""} users, ${params?.astRecords ?? ""} AST records, ${params?.sessions ?? ""} sessions.`,
+    overview: "Overview",
+    geographyLabs: "Geography & Labs",
+    fieldOps: "Field Ops",
+    clinicalQuality: "Clinical Quality",
+    language: "Language",
+    english: "English",
+    french: "Français",
+    demoBannerTitle: "Public demo disclaimer",
+    demoBannerBody:
+      "This interface is a proof of concept mockup made for demonstration purposes only. It is not an official MSF or Antibiogo production tool, does not support clinical decision-making, and must not be used for medical, operational, regulatory, privacy, compliance, procurement, or legal reliance. Any real deployment would require dedicated regulatory, legal, cybersecurity, privacy, hosting, branding, governance, and country-specific review before publication or field use.",
+    demoBannerCollapsed:
+      "Demo / non-official interface. Regulatory, legal, privacy, compliance and governance review remain required.",
+    hideDisclaimer: "Hide",
+    showDisclaimer: "Show disclaimer",
+    relativePeriod: "Relative period",
+    last3Months: "Last 3 months",
+    last6Months: "Last 6 months",
+    last12Months: "Last 12 months",
+    last24Months: "Last 24 months",
+    countryFocus: "Country focus",
+    allCountries: "All countries",
+    versionFocus: "Version focus",
+    allVersions: "All versions",
+    aboutFilters: "About filters",
+    versionHelp: "Version helps isolate regressions after rollout versus site-level constraints.",
+    connectivityHelp: "Connectivity helps separate product defects from offline operating context.",
+    clinicalHelp: "Clinical quality filters support targeted AST rule review.",
+    activeFilters: (params?: TranslationParams) => `${params?.count ?? 0} active filters`,
+    advancedFilters: "Advanced filters",
+    reset: "Reset",
+    noAdvancedFilters: "No advanced filters applied. The dashboard currently shows the full mock programme perimeter.",
+    advancedGlobalFilters: "Advanced global filters",
+    regions: "Regions",
+    laboratories: "Laboratories",
+    labType: "Lab type",
+    lisStatus: "LIS status",
+    lisStatusHelp: "Use this to separate stable integrations from pilot mappings.",
+    connectivity: "Connectivity",
+    connectivityDrawerHelp: "Useful in LMIC contexts to compare robust sites versus constrained offline-heavy sites.",
+    usageMode: "Usage mode",
+    userRole: "User role",
+    bacteria: "Bacteria",
+    bacteriaHelp: "Useful for AST rule coverage and critical error review.",
+    antibiotic: "Antibiotic",
+    feedbackType: "Feedback type",
+    incidentSeverity: "Incident severity",
+    capaStatus: "CAPA status",
+    kpiRead: (params?: TranslationParams) => `How to read ${params?.label ?? ""}`,
+    definition: "Definition",
+    formula: "Formula",
+    whyItMatters: "Why it matters",
+    threshold: "Threshold",
+    suggestedAction: "Suggested action",
+    whyItMattersBody:
+      "This KPI helps product, QA/RA and field teams separate site frictions from true product regressions.",
+    vsPreviousPeriod: "vs previous period",
+    trendingBetter: "Trending better",
+    needsAttention: "Needs attention",
+    temporalSignals: "Temporal signals",
+    temporalSignalsSubtitle: "Monthly trend view for product, operational and clinical indicators.",
+    astVolume: "AST volume",
+    astPrecision: "AST precision",
+    crashRate: "Crash rate",
+    entryTime: "Entry time",
+    syncSuccess: "Sync success",
+    offlineShare: "Offline share %",
+    roleDistribution: "Role distribution",
+    roleDistributionSubtitle: "Role mix helps interpret adoption, governance maturity and support load.",
+    operationalPerformanceMix: "Operational performance mix",
+    operationalPerformanceMixSubtitle: "Overlay of sync resilience, product responsiveness and AST output.",
+    clinicalReviewNote: "Automatic annotation logic flags months with increased critical error burden for clinical review.",
+    countryOperationalFootprint: "Country operational footprint",
+    countryOperationalFootprintSubtitle: "A spatial proxy view combining adoption, trust, incidents and connectivity risk.",
+    activeLabs: "Active labs",
+    openIncidents: "Open incidents",
+    dataTrust: "Data trust",
+    compareTwoCountries: "Compare two countries",
+    compareTwoCountriesSubtitle: "Useful in programme reviews to contrast maturity and operational drag.",
+    dataTrustScore: "Data trust score",
+    laboratoriesSubtitle: "Deployment health, adoption, clinical precision and operational risk by site.",
+    search: "Search",
+    exportCsv: "Export CSV",
+    sortByRisk: "Sort by risk",
+    sortByPrecision: "Sort by precision",
+    sortBySyncSuccess: "Sort by sync success",
+    sortByAstVolume: "Sort by AST volume",
+    deployment: "Deployment",
+    version: "Version",
+    activeUsers: "Active users",
+    precision: "Precision",
+    crash: "Crash",
+    sync: "Sync",
+    dataQuality: "Data quality",
+    risk: "Risk",
+    previous: "Previous",
+    next: "Next",
+    showing: (params?: TranslationParams) => `Showing ${params?.current ?? 0} of ${params?.total ?? 0} labs`,
+    latestFieldSignal: "Latest field signal",
+    operationalInterpretation: "Operational interpretation",
+    operationalInterpretationBody:
+      "This site risk score is designed for programme review. High scores usually mix unstable sync, fragile adoption, or elevated clinical validation burden after rollout.",
+    feedback: "Feedback",
+    feedbackSubtitle: "Field signal stream across survey, in-app, support and WhatsApp channels.",
+    date: "Date",
+    country: "Country",
+    lab: "Lab",
+    channel: "Channel",
+    type: "Type",
+    severity: "Severity",
+    status: "Status",
+    responseHours: "Response h",
+    incidentsQa: "Incidents and QA",
+    incidentsQaSubtitle: "Operational anomalies, CAPA-linked issues and version-specific incidents.",
+    kpiTrigger: "KPI trigger",
+    owner: "Owner",
+    action: "Action",
+    clinicalQualityDetail: "Clinical quality detail",
+    clinicalQualityDetailSubtitle: "Species-level concordance, critical error burden and manual validation patterns.",
+    clinicalQualityNotes: "Clinical quality notes",
+    astPrecisionDef: "AST precision: proportion of software interpretations matching the reference interpretation.",
+    globalPrecisionVsCritical:
+      "Global precision vs critical errors: a small number of mismatches can remain clinically sensitive when they are very major errors.",
+    whyVmeMatters:
+      "Why VME matters: false susceptibility can drive unsafe treatment decisions and must be tracked with heightened QA/RA scrutiny.",
+    volume: "Volume",
+    criticalErrors: "Critical errors",
+    manualValidation: "Manual validation",
+    topAntibiotic: "Top antibiotic",
+    performanceByVersion: "Performance by version",
+    performanceByVersionSubtitle: "Release quality view linking rollout footprint, incidents and concordance.",
+    labsDeployed: "Labs deployed",
+    incidents: "Incidents",
+    recommendedActions: "Recommended actions",
+    recommendedActionsSubtitle: "Operational watchlist translating KPI drift into product, QA/RA and field actions.",
+    rationale: "Rationale",
+    nextStep: "Next step",
+    reviewDate: "Review date",
+  },
+  fr: {
+    mockEnvironment: "Environnement mock",
+    productScope: "Produit + QA/RA + Ops",
+    dashboardTitle: "Antibiogo Dashboard",
+    dashboardSubtitle:
+      "Cockpit KPI pour un SaMD médical déployé dans des laboratoires de microbiologie en contexte LMIC, combinant robustesse technique, adoption, qualité clinique et gouvernance.",
+    lastMockRefresh: "Dernier rafraîchissement mock",
+    perimeter: (params?: TranslationParams) =>
+      `Périmètre : ${params?.countries ?? ""} pays, ${params?.labs ?? ""} laboratoires, ${params?.users ?? ""} utilisateurs, ${params?.astRecords ?? ""} enregistrements AST, ${params?.sessions ?? ""} sessions.`,
+    overview: "Vue d’ensemble",
+    geographyLabs: "Géographie & laboratoires",
+    fieldOps: "Opérations terrain",
+    clinicalQuality: "Qualité clinique",
+    language: "Langue",
+    english: "English",
+    french: "Français",
+    demoBannerTitle: "Avertissement démo publique",
+    demoBannerBody:
+      "Cette interface est une maquette de démonstration de type proof of concept. Ce n’est pas un outil officiel MSF ou Antibiogo en production, elle ne doit pas être utilisée pour l’aide à la décision clinique et ne peut servir de base médicale, opérationnelle, réglementaire, juridique, conformité, protection des données, achat ou engagement contractuel. Tout déploiement réel nécessiterait une revue dédiée des aspects réglementaires, juridiques, cybersécurité, confidentialité, hébergement, branding, gouvernance et des exigences propres à chaque pays avant toute publication ou usage terrain.",
+    demoBannerCollapsed:
+      "Démo / interface non officielle. Les volets réglementaires, juridiques, confidentialité, conformité et gouvernance restent à couvrir.",
+    hideDisclaimer: "Masquer",
+    showDisclaimer: "Afficher l’avertissement",
+    relativePeriod: "Période relative",
+    last3Months: "3 derniers mois",
+    last6Months: "6 derniers mois",
+    last12Months: "12 derniers mois",
+    last24Months: "24 derniers mois",
+    countryFocus: "Pays ciblé",
+    allCountries: "Tous les pays",
+    versionFocus: "Version ciblée",
+    allVersions: "Toutes les versions",
+    aboutFilters: "À propos des filtres",
+    versionHelp: "La version aide à isoler les régressions après rollout par rapport aux contraintes propres au site.",
+    connectivityHelp: "La connectivité aide à distinguer les défauts produit du contexte offline.",
+    clinicalHelp: "Les filtres qualité clinique permettent une revue ciblée des règles AST.",
+    activeFilters: (params?: TranslationParams) => `${params?.count ?? 0} filtres actifs`,
+    advancedFilters: "Filtres avancés",
+    reset: "Réinitialiser",
+    noAdvancedFilters: "Aucun filtre avancé appliqué. Le dashboard affiche actuellement l’ensemble du périmètre programme mocké.",
+    advancedGlobalFilters: "Filtres globaux avancés",
+    regions: "Régions",
+    laboratories: "Laboratoires",
+    labType: "Type de laboratoire",
+    lisStatus: "Statut LIS",
+    lisStatusHelp: "Permet de distinguer les intégrations stables des mappings pilotes.",
+    connectivity: "Connectivité",
+    connectivityDrawerHelp: "Utile en contexte LMIC pour comparer des sites robustes et des sites plus contraints et offline.",
+    usageMode: "Mode d’usage",
+    userRole: "Rôle utilisateur",
+    bacteria: "Bactérie",
+    bacteriaHelp: "Utile pour la couverture des règles AST et la revue des erreurs critiques.",
+    antibiotic: "Antibiotique",
+    feedbackType: "Type de feedback",
+    incidentSeverity: "Sévérité incident",
+    capaStatus: "Statut CAPA",
+    kpiRead: (params?: TranslationParams) => `Comment lire ${params?.label ?? ""}`,
+    definition: "Définition",
+    formula: "Formule",
+    whyItMatters: "Pourquoi c’est important",
+    threshold: "Seuil",
+    suggestedAction: "Action suggérée",
+    whyItMattersBody:
+      "Ce KPI aide les équipes produit, QA/RA et terrain à distinguer les frictions site des vraies régressions produit.",
+    vsPreviousPeriod: "vs période précédente",
+    trendingBetter: "Tendance positive",
+    needsAttention: "À surveiller",
+    temporalSignals: "Signaux temporels",
+    temporalSignalsSubtitle: "Vue mensuelle des indicateurs produit, opérationnels et cliniques.",
+    astVolume: "Volume AST",
+    astPrecision: "Précision AST",
+    crashRate: "Taux de crash",
+    entryTime: "Temps de saisie",
+    syncSuccess: "Succès de sync",
+    offlineShare: "% offline",
+    roleDistribution: "Répartition des rôles",
+    roleDistributionSubtitle: "Le mix de rôles aide à interpréter adoption, maturité de gouvernance et charge support.",
+    operationalPerformanceMix: "Mix de performance opérationnelle",
+    operationalPerformanceMixSubtitle: "Superposition de la résilience sync, de la réactivité produit et du volume AST.",
+    clinicalReviewNote: "La logique d’annotation automatique signale les mois avec plus d’erreurs critiques pour revue clinique.",
+    countryOperationalFootprint: "Empreinte opérationnelle par pays",
+    countryOperationalFootprintSubtitle: "Vue spatiale proxy combinant adoption, confiance, incidents et risque de connectivité.",
+    activeLabs: "Labos actifs",
+    openIncidents: "Incidents ouverts",
+    dataTrust: "Confiance data",
+    compareTwoCountries: "Comparer deux pays",
+    compareTwoCountriesSubtitle: "Utile en revue programme pour comparer maturité et friction opérationnelle.",
+    dataTrustScore: "Score de confiance data",
+    laboratoriesSubtitle: "Santé du déploiement, adoption, précision clinique et risque opérationnel par site.",
+    search: "Rechercher",
+    exportCsv: "Exporter CSV",
+    sortByRisk: "Trier par risque",
+    sortByPrecision: "Trier par précision",
+    sortBySyncSuccess: "Trier par succès de sync",
+    sortByAstVolume: "Trier par volume AST",
+    deployment: "Déploiement",
+    version: "Version",
+    activeUsers: "Utilisateurs actifs",
+    precision: "Précision",
+    crash: "Crash",
+    sync: "Sync",
+    dataQuality: "Qualité de donnée",
+    risk: "Risque",
+    previous: "Précédent",
+    next: "Suivant",
+    showing: (params?: TranslationParams) => `Affichage de ${params?.current ?? 0} sur ${params?.total ?? 0} laboratoires`,
+    latestFieldSignal: "Dernier signal terrain",
+    operationalInterpretation: "Interprétation opérationnelle",
+    operationalInterpretationBody:
+      "Ce score de risque site est conçu pour les revues programme. Les scores élevés combinent souvent sync instable, adoption fragile ou charge de validation clinique accrue après rollout.",
+    feedback: "Feedback",
+    feedbackSubtitle: "Flux de signaux terrain via survey, in-app, support et WhatsApp.",
+    date: "Date",
+    country: "Pays",
+    lab: "Laboratoire",
+    channel: "Canal",
+    type: "Type",
+    severity: "Sévérité",
+    status: "Statut",
+    responseHours: "Réponse h",
+    incidentsQa: "Incidents et QA",
+    incidentsQaSubtitle: "Anomalies opérationnelles, incidents liés aux CAPA et sujets spécifiques aux versions.",
+    kpiTrigger: "KPI déclencheur",
+    owner: "Responsable",
+    action: "Action",
+    clinicalQualityDetail: "Détail qualité clinique",
+    clinicalQualityDetailSubtitle: "Concordance par espèce, charge d’erreurs critiques et patterns de validation manuelle.",
+    clinicalQualityNotes: "Notes qualité clinique",
+    astPrecisionDef: "Précision AST : proportion d’interprétations logicielles correspondant à l’interprétation de référence.",
+    globalPrecisionVsCritical:
+      "Précision globale vs erreurs critiques : un petit nombre d’écarts peut rester cliniquement sensible lorsqu’il s’agit de very major errors.",
+    whyVmeMatters:
+      "Pourquoi le VME est sensible : une fausse sensibilité peut conduire à des décisions thérapeutiques à risque et doit être suivie avec une vigilance QA/RA élevée.",
+    volume: "Volume",
+    criticalErrors: "Erreurs critiques",
+    manualValidation: "Validation manuelle",
+    topAntibiotic: "Antibiotique principal",
+    performanceByVersion: "Performance par version",
+    performanceByVersionSubtitle: "Vue qualité release reliant footprint de déploiement, incidents et concordance.",
+    labsDeployed: "Labos déployés",
+    incidents: "Incidents",
+    recommendedActions: "Actions recommandées",
+    recommendedActionsSubtitle: "Watchlist opérationnelle traduisant la dérive des KPI en actions produit, QA/RA et terrain.",
+    rationale: "Rationale",
+    nextStep: "Prochaine étape",
+    reviewDate: "Date de revue",
+  },
+} satisfies Record<Locale, Record<string, TranslationValue>>;
+
+type LocaleContextValue = {
+  locale: Locale;
+  setLocale: (locale: Locale) => void;
+  t: (key: keyof typeof translations.en, params?: TranslationParams) => string;
+};
+
+const LocaleContext = createContext<LocaleContextValue | null>(null);
+
+export function LocaleProvider({ children }: { children: ReactNode }) {
+  const [locale, setLocale] = useState<Locale>("en");
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem("antibiogo-locale");
+    if (stored === "en" || stored === "fr") {
+      setLocale(stored);
+    }
+  }, []);
+
+  const value = useMemo<LocaleContextValue>(
+    () => ({
+      locale,
+      setLocale: (nextLocale) => {
+        window.localStorage.setItem("antibiogo-locale", nextLocale);
+        setLocale(nextLocale);
+      },
+      t: (key, params) => {
+        const entry = translations[locale][key];
+        return typeof entry === "function" ? entry(params) : entry;
+      },
+    }),
+    [locale]
+  );
+
+  return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
+}
+
+export function useLocale() {
+  const context = useContext(LocaleContext);
+  if (!context) {
+    throw new Error("useLocale must be used within LocaleProvider");
+  }
+  return context;
+}
