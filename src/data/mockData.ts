@@ -401,7 +401,7 @@ export function generateAstRecords(labs: Lab[]): AstRecord[] {
   const start = addMonths(END_DATE, -24);
   const astRecords: AstRecord[] = [];
 
-  labs.forEach((lab, labIndex) => {
+  labs.forEach((lab) => {
     const deployment = new Date(lab.deploymentDate);
     for (let month = 0; month < 24; month += 1) {
       const monthDate = addMonths(start, month);

@@ -2,11 +2,7 @@ import { antibioticOptions, bacteriaOptions } from "../data/mockData";
 import {
   type AstRecord,
   type DashboardData,
-  type FeedbackRecord,
   type GlobalFiltersState,
-  type IncidentRecord,
-  type Lab,
-  type LisIntegrationRecord,
   type SessionEvent,
 } from "../types";
 
@@ -397,7 +393,6 @@ export function getLabRows(data: DashboardData, filters: GlobalFiltersState) {
     const country = data.countries.find((item) => item.id === lab.countryId)!;
     const sessions = filtered.sessions.filter((item) => item.labId === lab.id);
     const ast = filtered.astRecords.filter((item) => item.labId === lab.id);
-    const lis = filtered.lisIntegrations.filter((item) => item.labId === lab.id);
     const lastFeedback = filtered.feedback
       .filter((item) => item.labId === lab.id)
       .sort((a, b) => b.date.localeCompare(a.date))[0];

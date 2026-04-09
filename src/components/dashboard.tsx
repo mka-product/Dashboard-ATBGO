@@ -18,16 +18,10 @@ import {
   FormHelperText,
   FormLabel,
   Grid,
-  GridItem,
   HStack,
   Icon,
   IconButton,
   Input,
-  Menu,
-  MenuButton,
-  MenuItemOption,
-  MenuList,
-  MenuOptionGroup,
   Popover,
   PopoverArrow,
   PopoverBody,
@@ -52,7 +46,7 @@ import {
   Tr,
   useDisclosure,
 } from "@chakra-ui/react";
-import { InfoOutlineIcon, DownloadIcon, SettingsIcon, Search2Icon } from "@chakra-ui/icons";
+import { InfoOutlineIcon, DownloadIcon, SettingsIcon } from "@chakra-ui/icons";
 import {
   FiActivity,
   FiAlertCircle,
@@ -182,46 +176,46 @@ export function KPICard({
   return (
     <Card bg={toneBg(item.tone)} border="1px solid" borderColor="white">
       <CardBody>
-        <Flex justify="space-between" align="start" mb={4}>
-          <Box>
-            <StatLabel color="slate.700" fontSize="sm">
-              {item.label}
-            </StatLabel>
-            <StatNumber fontSize="3xl" mt={2}>
-              {item.value}
-            </StatNumber>
-          </Box>
-          <HStack spacing={1}>
-            <Flex
-              bg="white"
-              borderRadius="full"
-              p={2}
-              align="center"
-              justify="center"
-              color={toneColor(item.tone)}
-            >
-              <Icon as={KpiIcon} boxSize={5} />
-            </Flex>
-            <InfoPopover title={`How to read ${item.label}`}>
-              <Stack spacing={3} fontSize="sm">
-                <Text><strong>Definition:</strong> {item.description}</Text>
-                <Text><strong>Formula:</strong> {item.formula}</Text>
-                <Text><strong>Why it matters:</strong> This KPI helps product, QA/RA and field teams separate site frictions from true product regressions.</Text>
-                <Text><strong>Threshold:</strong> {item.threshold}</Text>
-                <Text><strong>Suggested action:</strong> {item.action}</Text>
-              </Stack>
-            </InfoPopover>
-          </HStack>
-        </Flex>
         <Stat>
+          <Flex justify="space-between" align="start" mb={4}>
+            <Box>
+              <StatLabel color="slate.700" fontSize="sm">
+                {item.label}
+              </StatLabel>
+              <StatNumber fontSize="3xl" mt={2}>
+                {item.value}
+              </StatNumber>
+            </Box>
+            <HStack spacing={1}>
+              <Flex
+                bg="white"
+                borderRadius="full"
+                p={2}
+                align="center"
+                justify="center"
+                color={toneColor(item.tone)}
+              >
+                <Icon as={KpiIcon} boxSize={5} />
+              </Flex>
+              <InfoPopover title={`How to read ${item.label}`}>
+                <Stack spacing={3} fontSize="sm">
+                  <Text><strong>Definition:</strong> {item.description}</Text>
+                  <Text><strong>Formula:</strong> {item.formula}</Text>
+                  <Text><strong>Why it matters:</strong> This KPI helps product, QA/RA and field teams separate site frictions from true product regressions.</Text>
+                  <Text><strong>Threshold:</strong> {item.threshold}</Text>
+                  <Text><strong>Suggested action:</strong> {item.action}</Text>
+                </Stack>
+              </InfoPopover>
+            </HStack>
+          </Flex>
           <StatHelpText mb={0} color={`${deltaColor(item.delta)}.600`}>
             {item.delta >= 0 ? "+" : ""}
             {item.delta.toFixed(1)}% vs previous period
           </StatHelpText>
+          <Badge mt={3} colorScheme={item.delta >= 0 ? "green" : "orange"} borderRadius="full" px={3} py={1}>
+            {item.delta >= 0 ? "Trending better" : "Needs attention"}
+          </Badge>
         </Stat>
-        <Badge mt={3} colorScheme={item.delta >= 0 ? "green" : "orange"} borderRadius="full" px={3} py={1}>
-          {item.delta >= 0 ? "Trending better" : "Needs attention"}
-        </Badge>
       </CardBody>
     </Card>
   );
